@@ -1,0 +1,42 @@
+package com.example.myapplication.ui.balances
+
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import com.example.myapplication.data.AppViewModel
+import com.example.myapplication.data.ME
+import com.example.myapplication.data.money
+import com.example.myapplication.ui.components.AppScreen
+import com.example.myapplication.ui.components.LabelValue
+import com.example.myapplication.ui.components.MissingScreen
+import com.example.myapplication.ui.components.PrimaryButton
+import com.example.myapplication.ui.components.SectionTitle
+
+/** 23 Payment recorded (after a partial payment). Done → 07 Individual group. */
+@Composable
+fun PaymentRecordedScreen(vm: AppViewModel, paymentId: String, onDone: () -> Unit) {
+    val payment = vm.payment(paymentId)
+    if (payment == null) {
+        MissingScreen(onDone)
+        return
+    }
+    val stillToPay = vm.debts(payment.groupId).find { it.fromId == ME && it.toId == payment.toId }?.amount ?: 0.0
+
+    AppScreen(title = "Payment recorded", onBack = onDone) {
+        Icon(Icons.Default.CheckCircle, contentDescription = null, Modifier.size(56.dp), tint = MaterialTheme.colorScheme.primary)
+        Text("${money(payment.amount)} paid to ${vm.firstName(payment.toId)}", style = MaterialTheme.typography.headlineSmall)
+        Text("${vm.group(payment.groupId)?.name.orEmpty()} · ${payment.date}")
+
+        SectionTitle("Your balance is updated")
+        LabelValue("Previously owed", money(stillToPay + payment.amount))
+        LabelValue("Payment recorded", "−${money(payment.amount)}")
+        LabelValue("Still to pay", money(stillToPay))
+        PrimaryButton("Done — back to group", onClick = onDone)
+    }
+}
