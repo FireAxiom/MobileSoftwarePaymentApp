@@ -1,5 +1,6 @@
 package com.example.myapplication.ui.balances
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,6 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.myapplication.data.AppViewModel
 import com.example.myapplication.data.ME
@@ -105,4 +107,16 @@ fun BalancesScreen(
             Text("Reminder sent to ${reminded.joinToString { vm.firstName(it) }}.", style = MaterialTheme.typography.bodySmall)
         }
     }
+}
+
+@SuppressLint("ViewModelConstructorInComposable")
+@Preview
+@Composable
+fun BalancesScreenPreview() {
+    BalancesScreen(
+        vm = AppViewModel(),
+        groupId = "g1",
+        onBack = {},
+        onPay = { _, _ -> },
+    )
 }

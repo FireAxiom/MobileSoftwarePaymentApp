@@ -1,11 +1,13 @@
 package com.example.myapplication.ui.groups
 
+import android.annotation.SuppressLint
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.tooling.preview.Preview
 import com.example.myapplication.data.AppViewModel
 import com.example.myapplication.data.balanceText
 import com.example.myapplication.data.money
@@ -40,4 +42,15 @@ fun GroupsScreen(
         }
         PrimaryButton("+ Create group", onClick = onCreateGroup)
     }
+}
+
+@SuppressLint("ViewModelConstructorInComposable")
+@Preview
+@Composable
+fun GroupsScreenPreview() {
+    GroupsScreen(
+        vm = AppViewModel(),
+        onOpenGroup = {},
+        onCreateGroup = {},
+    )
 }

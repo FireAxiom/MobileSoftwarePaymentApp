@@ -1,5 +1,6 @@
 package com.example.myapplication.ui.groups
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -9,6 +10,7 @@ import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.myapplication.data.AppViewModel
 import com.example.myapplication.data.ME
@@ -80,4 +82,19 @@ fun GroupScreen(
         }
         PrimaryButton("+ Add expense", onClick = onAddExpense)
     }
+}
+
+@SuppressLint("ViewModelConstructorInComposable")
+@Preview
+@Composable
+fun GroupScreenPreview() {
+    GroupScreen(
+        vm = AppViewModel(),
+        groupId = "g1",
+        onBack = {},
+        onEdit = {},
+        onAddExpense = {},
+        onOpenExpense = {},
+        onOpenBalances = {},
+    )
 }

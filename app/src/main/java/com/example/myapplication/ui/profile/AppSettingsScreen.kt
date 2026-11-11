@@ -1,5 +1,6 @@
 package com.example.myapplication.ui.profile
 
+import android.annotation.SuppressLint
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -7,6 +8,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.tooling.preview.Preview
 import com.example.myapplication.data.AppViewModel
 import com.example.myapplication.ui.components.AppScreen
 import com.example.myapplication.ui.components.ClickableRow
@@ -56,4 +58,15 @@ fun AppSettingsScreen(
             onBack()
         }
     }
+}
+
+@SuppressLint("ViewModelConstructorInComposable")
+@Preview
+@Composable
+fun AppSettingsScreenPreview() {
+    AppSettingsScreen(
+        vm = AppViewModel(),
+        onBack = {},
+        onNotificationSettings = {},
+    )
 }

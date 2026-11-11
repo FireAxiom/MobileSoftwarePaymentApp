@@ -1,8 +1,10 @@
 package com.example.myapplication.ui.notifications
 
+import android.annotation.SuppressLint
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.myapplication.data.AppViewModel
 import com.example.myapplication.data.Invite
@@ -36,4 +38,21 @@ fun InviteSheet(vm: AppViewModel, invite: Invite, onClose: () -> Unit) {
             onClose()
         }
     }
+}
+
+@SuppressLint("ViewModelConstructorInComposable")
+@Preview
+@Composable
+fun InviteSheetPreview() {
+    InviteSheet(
+        vm = AppViewModel(),
+        invite = Invite(
+            id = "",
+            groupName = "",
+            description = "",
+            fromUserId = "",
+            memberIds = listOf(),
+        ),
+        onClose = {},
+    )
 }

@@ -1,5 +1,6 @@
 package com.example.myapplication.ui.balances
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
@@ -8,6 +9,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.myapplication.data.AppViewModel
 import com.example.myapplication.data.ME
@@ -39,4 +41,15 @@ fun PaymentRecordedScreen(vm: AppViewModel, paymentId: String, onDone: () -> Uni
         LabelValue("Still to pay", money(stillToPay))
         PrimaryButton("Done — back to group", onClick = onDone)
     }
+}
+
+@SuppressLint("ViewModelConstructorInComposable")
+@Preview
+@Composable
+fun PaymentRecordedScreenPreview() {
+    PaymentRecordedScreen(
+        vm = AppViewModel(),
+        paymentId = "p1",
+        onDone = {},
+    )
 }

@@ -1,5 +1,6 @@
 package com.example.myapplication.ui.groups
 
+import android.annotation.SuppressLint
 import android.content.ClipData
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -14,6 +15,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import com.example.myapplication.data.AppViewModel
 import com.example.myapplication.ui.components.AppScreen
 import com.example.myapplication.ui.components.AppTextField
@@ -79,4 +81,16 @@ fun InvitePeopleScreen(
         }
         PrimaryButton("Done — back to group", onClick = onDone)
     }
+}
+
+@SuppressLint("ViewModelConstructorInComposable")
+@Preview
+@Composable
+fun InvitePeopleScreenPreview() {
+    InvitePeopleScreen(
+        vm = AppViewModel(),
+        groupId = "g1",
+        onBack = {},
+        onDone = {},
+    )
 }

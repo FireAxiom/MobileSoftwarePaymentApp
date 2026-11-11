@@ -24,7 +24,7 @@ class AppViewModel : ViewModel() {
     private val users = mutableStateMapOf<String, User>().apply { SampleData.users.forEach { put(it.id, it) } }
     val groups = mutableStateListOf<Group>().apply { addAll(SampleData.groups) }
     val expenses = mutableStateListOf<Expense>().apply { addAll(SampleData.expenses) }
-    val payments = mutableStateListOf<Payment>()
+    val payments = mutableStateListOf<Payment>().apply { addAll(elements = SampleData.payments) }
     val invites = mutableStateListOf<Invite>().apply { addAll(SampleData.invites) }
     val sentInvites = mutableStateListOf<SentInvite>().apply { addAll(SampleData.sentInvites) }
     val notifications = mutableStateListOf<AppNotification>().apply { addAll(SampleData.notifications) }

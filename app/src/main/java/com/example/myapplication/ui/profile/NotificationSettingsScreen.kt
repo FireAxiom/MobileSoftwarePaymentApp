@@ -1,10 +1,12 @@
 package com.example.myapplication.ui.profile
 
+import android.annotation.SuppressLint
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.tooling.preview.Preview
 import com.example.myapplication.data.AppViewModel
 import com.example.myapplication.ui.components.AppScreen
 import com.example.myapplication.ui.components.CheckboxRow
@@ -43,4 +45,14 @@ fun NotificationSettingsScreen(vm: AppViewModel, onBack: () -> Unit) {
             onBack()
         }
     }
+}
+
+@SuppressLint("ViewModelConstructorInComposable")
+@Preview
+@Composable
+fun NotificationSettingsScreenPreview() {
+    NotificationSettingsScreen(
+        vm = AppViewModel(),
+        onBack = {},
+    )
 }

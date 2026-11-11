@@ -1,5 +1,6 @@
 package com.example.myapplication.ui.profile
 
+import android.annotation.SuppressLint
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -11,6 +12,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import com.example.myapplication.data.AppViewModel
 import com.example.myapplication.ui.components.AppScreen
 import com.example.myapplication.ui.components.AppTextField
@@ -68,4 +70,15 @@ fun AccountSettingsScreen(
             dismissButton = { TextButton(onClick = { confirmDelete = false }) { Text("Cancel") } },
         )
     }
+}
+
+@SuppressLint("ViewModelConstructorInComposable")
+@Preview
+@Composable
+fun AccountSettingsScreenPreview() {
+    AccountSettingsScreen(
+        vm = AppViewModel(),
+        onBack = {},
+        onAccountDeleted = {},
+    )
 }

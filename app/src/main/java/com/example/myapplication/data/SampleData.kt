@@ -40,4 +40,8 @@ object SampleData {
         AppNotification("n3", ACTIVITY, "Leo added Fuel", "Cabin weekend · $90.00", "Yesterday", groupId = "g1", expenseId = "e3"),
         AppNotification("n4", ACTIVITY, "You added Dinner", "Friday dinner · $96.00", "Earlier", groupId = "g2", expenseId = "e4"),
     )
+
+    val payments = listOf(
+        Payment("p1", groupId = "g1", fromId = "maya", toId = "leo", amount = 100.00, date = "10-10-2026")
+    )
 }

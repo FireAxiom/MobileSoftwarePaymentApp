@@ -1,5 +1,6 @@
 package com.example.myapplication.ui.auth
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -11,6 +12,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import com.example.myapplication.data.AppViewModel
 import com.example.myapplication.ui.components.AppScreen
 import com.example.myapplication.ui.components.AppTextField
@@ -51,4 +53,16 @@ fun LoginScreen(
         }
         TextButton(onClick = onSwitchToSignUp, modifier = Modifier.fillMaxWidth()) { Text("New here? Sign up") }
     }
+}
+
+@SuppressLint("ViewModelConstructorInComposable")
+@Preview
+@Composable
+fun LoginScreenPreview() {
+    LoginScreen(
+        vm = AppViewModel(),
+        onBack = {},
+        onLoggedIn = {},
+        onSwitchToSignUp = {}
+    )
 }

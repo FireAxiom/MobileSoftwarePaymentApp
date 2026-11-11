@@ -1,5 +1,6 @@
 package com.example.myapplication.ui.groups
 
+import android.annotation.SuppressLint
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
@@ -14,6 +15,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.tooling.preview.Preview
 import com.example.myapplication.data.AppViewModel
 import com.example.myapplication.data.ME
 import com.example.myapplication.data.balanceText
@@ -120,4 +122,17 @@ fun EditGroupScreen(
             dismissButton = { TextButton(onClick = { confirmDelete = false }) { Text("Cancel") } },
         )
     }
+}
+
+@SuppressLint("ViewModelConstructorInComposable")
+@Preview
+@Composable
+fun EditGroupScreenPreview() {
+    EditGroupScreen(
+        vm = AppViewModel(),
+        groupId = "g1",
+        onBack = {},
+        onInvite = {},
+        onGroupGone = {},
+    )
 }
