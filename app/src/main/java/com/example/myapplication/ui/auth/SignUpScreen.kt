@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -18,6 +17,7 @@ import com.example.myapplication.ui.components.AppScreen
 import com.example.myapplication.ui.components.AppTextField
 import com.example.myapplication.ui.components.CheckboxRow
 import com.example.myapplication.ui.components.PrimaryButton
+import com.example.myapplication.ui.components.SecondaryButton
 import com.example.myapplication.ui.components.offlineState
 
 /** 03 Sign up – create an account. */
@@ -35,11 +35,10 @@ fun SignUpScreen(
     var error by rememberSaveable { mutableStateOf<String?>(null) }
 
     AppScreen(
-        title = "Sign up",
+        title = "Create Account",
         onBack = onBack,
         offline = vm.offlineState("Offline · Sign-up pending", "Account not created yet. Will retry when online.", lastSynced = "Not yet"),
     ) {
-        Text("Create account", style = MaterialTheme.typography.headlineSmall)
         Text("A simpler way to share expenses.")
         AppTextField(name, { name = it }, "Full name")
         AppTextField(email, { email = it }, "Email", keyboardType = KeyboardType.Email)
@@ -56,7 +55,11 @@ fun SignUpScreen(
             }
             if (error == null) onSignedUp()
         }
-        TextButton(onClick = onSwitchToLogIn, modifier = Modifier.fillMaxWidth()) { Text("Already a member? Log in") }
+        SecondaryButton(
+            onClick = onSwitchToLogIn,
+            text = "Already a member? Log in",
+            modifier = Modifier.fillMaxWidth(),
+        )
     }
 }
 
