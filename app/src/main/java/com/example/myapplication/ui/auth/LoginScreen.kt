@@ -17,6 +17,7 @@ import com.example.myapplication.data.AppViewModel
 import com.example.myapplication.ui.components.AppScreen
 import com.example.myapplication.ui.components.AppTextField
 import com.example.myapplication.ui.components.PrimaryButton
+import com.example.myapplication.ui.components.SecondaryButton
 import com.example.myapplication.ui.components.offlineState
 
 /** 02 Log in – existing account. Any non-empty email + password works (fake backend). */
@@ -32,11 +33,10 @@ fun LoginScreen(
     var error by rememberSaveable { mutableStateOf<String?>(null) }
 
     AppScreen(
-        title = "Log in",
+        title = "Welcome back",
         onBack = onBack,
         offline = vm.offlineState("Offline · Login pending", "Not logged in yet. Will retry when online.", lastSynced = "Not yet"),
     ) {
-        Text("Welcome back", style = MaterialTheme.typography.headlineSmall)
         Text("Log in to see your groups and balances.")
         AppTextField(email, { email = it }, "Email", keyboardType = KeyboardType.Email)
         AppTextField(password, { password = it }, "Password", keyboardType = KeyboardType.Password, isPassword = true)
@@ -51,7 +51,7 @@ fun LoginScreen(
             }
             if (error == null) onLoggedIn()
         }
-        TextButton(onClick = onSwitchToSignUp, modifier = Modifier.fillMaxWidth()) { Text("New here? Sign up") }
+        SecondaryButton(text = "New here? Sign up", modifier = Modifier.fillMaxWidth(), onClick = onSwitchToSignUp)
     }
 }
 
