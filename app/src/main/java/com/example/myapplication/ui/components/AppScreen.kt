@@ -1,6 +1,7 @@
 package com.example.myapplication.ui.components
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,9 +25,17 @@ fun AppScreen(
     actionText: String? = null,
     onAction: (() -> Unit)? = null,
     offline: OfflineState? = null,
+    bottomContent: (@Composable () -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    Scaffold(topBar = { TopBar(title, onBack, actionText, onAction) }) { padding ->
+    Scaffold(
+        topBar = { TopBar(title, onBack, actionText, onAction) },
+        bottomBar = {
+            if (bottomContent != null) {
+                Box(Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) { bottomContent() }
+            }
+        },
+    ) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
