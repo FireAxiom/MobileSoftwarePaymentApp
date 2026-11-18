@@ -22,6 +22,7 @@ import com.example.myapplication.ui.components.AppTextField
 import com.example.myapplication.ui.components.ClickableRow
 import com.example.myapplication.ui.components.MissingScreen
 import com.example.myapplication.ui.components.PrimaryButton
+import com.example.myapplication.ui.components.SecondaryButton
 import com.example.myapplication.ui.components.SectionTitle
 import com.example.myapplication.ui.components.offlineState
 import kotlinx.coroutines.launch
@@ -79,7 +80,7 @@ fun InvitePeopleScreen(
                 },
             )
         }
-        PrimaryButton("Done — back to group", onClick = onDone)
+        SecondaryButton("Done — back to group", onClick = onDone)
     }
 }
 

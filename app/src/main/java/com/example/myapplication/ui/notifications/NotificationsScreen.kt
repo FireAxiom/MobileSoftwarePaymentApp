@@ -1,7 +1,6 @@
 package com.example.myapplication.ui.notifications
 
 import android.annotation.SuppressLint
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -52,7 +51,6 @@ fun NotificationsScreen(
 
                 NotificationType.SYNC -> ClickableRow(title = n.title, subtitle = "${n.body} · ${n.time}")
             }
-            HorizontalDivider()
         }
     }
 
