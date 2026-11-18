@@ -42,6 +42,6 @@ object SampleData {
     )
 
     val payments = listOf(
-        Payment("p1", groupId = "g1", fromId = "maya", toId = "leo", amount = 100.00, date = "10-10-2026")
+        Payment("p1", groupId = "g1", fromId = "maya", toId = "leo", amount = 100.00, date = "Oct 30, 2026")
     )
 }

@@ -1,6 +1,7 @@
 package com.example.myapplication.ui.groups
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.layout.Row
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
@@ -15,6 +16,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.myapplication.data.AppViewModel
 import com.example.myapplication.data.ME
@@ -22,7 +24,6 @@ import com.example.myapplication.data.balanceText
 import com.example.myapplication.ui.components.AppScreen
 import com.example.myapplication.ui.components.AppTextField
 import com.example.myapplication.ui.components.ClickableRow
-import com.example.myapplication.ui.components.DangerButton
 import com.example.myapplication.ui.components.MissingScreen
 import com.example.myapplication.ui.components.PrimaryButton
 import com.example.myapplication.ui.components.SecondaryButton
@@ -77,8 +78,13 @@ fun EditGroupScreen(
                 trailingContent = {
                     when {
                         id == group.adminId -> Text("Admin")
-                        iAmAdmin -> IconButton(onClick = { vm.removeMember(groupId, id) }, enabled = vm.isOnline) {
-                            Icon(Icons.Default.Delete, contentDescription = "Remove ${user.name}")
+                        iAmAdmin -> Row (
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text("Member")
+                            IconButton(onClick = { vm.removeMember(groupId, id) }, enabled = vm.isOnline) {
+                                Icon(Icons.Default.Delete, contentDescription = "Remove ${user.name}")
+                            }
                         }
                         else -> Text("Member")
                     }
@@ -92,7 +98,7 @@ fun EditGroupScreen(
         }
 
         if (iAmAdmin) {
-            DangerButton("Delete group", enabled = vm.isOnline) { confirmDelete = true }
+            SecondaryButton("Delete group", enabled = vm.isOnline) { confirmDelete = true }
         } else {
             SecondaryButton("Leave group", enabled = !hasBalance) {
                 vm.leaveGroup(groupId)

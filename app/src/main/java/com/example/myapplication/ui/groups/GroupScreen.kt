@@ -49,6 +49,7 @@ fun GroupScreen(
         actionText = "Edit",
         onAction = onEdit,
         offline = vm.offlineState(message = "Showing previously synced group data."),
+        bottomContent = { PrimaryButton("+ Add expense", onClick = onAddExpense) },
     ) {
         Placeholder("Group cover", 100.dp)
         Text("${group.memberIds.size} members · ${group.memberIds.joinToString { vm.firstName(it) }}")
@@ -80,7 +81,6 @@ fun GroupScreen(
                 trailing = money(p.amount),
             )
         }
-        PrimaryButton("+ Add expense", onClick = onAddExpense)
     }
 }
 
