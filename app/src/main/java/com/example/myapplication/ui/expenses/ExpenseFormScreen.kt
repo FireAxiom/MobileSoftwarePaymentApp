@@ -1,6 +1,7 @@
 package com.example.myapplication.ui.expenses
 
 import android.annotation.SuppressLint
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -69,19 +70,28 @@ fun ExpenseFormScreen(
     ) {
         Text("${group.name.uppercase()} · ${vm.settings.currency}", style = MaterialTheme.typography.labelMedium)
         AppTextField(description, { description = it }, "Description")
-        ClickableRow("Amount", money(amount), trailing = "Edit") { overlay = Overlay.AMOUNT }
-        ClickableRow("Paid by", vm.displayName(paidBy), trailing = "Change") { overlay = Overlay.PAYER }
+        // 13/19 · rows follow the wireframe: value as title, explanation as subtitle, action on the right.
+        ClickableRow(money(amount), "Amount in ${vm.settings.currency}", trailing = "Edit ›") { overlay = Overlay.AMOUNT }
+        HorizontalDivider()
+        ClickableRow(
+            title = "Paid by ${if (paidBy == ME) "you" else vm.firstName(paidBy)}",
+            subtitle = "One person paid the full amount",
+            trailing = "Change ›",
+        ) { overlay = Overlay.PAYER }
+        HorizontalDivider()
         ClickableRow(
             title = "Split equally · ${splitBetween.size} people",
-            subtitle = splitBetween.joinToString { vm.firstName(it) } +
+            subtitle = splitSummary(splitBetween.map { vm.firstName(it) }) +
                 if (splitBetween.isNotEmpty()) " · ${money(amount / splitBetween.size)} each" else "",
-            trailing = "Change",
+            trailing = "Change ›",
         ) { overlay = Overlay.SPLIT }
+        HorizontalDivider()
         ClickableRow(
             title = "Receipt (optional)",
-            subtitle = if (hasReceipt) "Receipt attached" else "No receipt attached",
-            trailing = if (hasReceipt) "Change" else "Add",
+            subtitle = if (hasReceipt) "receipt.jpg · attached" else "No receipt attached",
+            trailing = if (hasReceipt) "View ›" else "Add ›",
         ) { overlay = Overlay.RECEIPT }
+        HorizontalDivider()
         AppTextField(note, { note = it }, "Note (optional)", singleLine = false)
 
         PrimaryButton(if (isEdit) "Save changes" else "Save expense", enabled = canSave) {
@@ -106,12 +116,23 @@ fun ExpenseFormScreen(
     // Overlays 14–17. Not a sequence – each one just updates one field and closes.
     when (overlay) {
         Overlay.AMOUNT -> AmountOverlay(amount, onDone = { amount = it; overlay = null }, onDismiss = { overlay = null })
-        Overlay.PAYER -> PayerOverlay(members, paidBy, vm::displayName, onDone = { paidBy = it; overlay = null }, onDismiss = { overlay = null })
-        Overlay.SPLIT -> SplitOverlay(members, splitBetween, amount, vm::displayName, onDone = { splitBetween = it; overlay = null }, onDismiss = { overlay = null })
+        Overlay.PAYER -> PayerOverlay(members, paidBy, amount, { vm.fullName(it) }, onDone = { paidBy = it; overlay = null }, onDismiss = { overlay = null })
+        Overlay.SPLIT -> SplitOverlay(members, splitBetween, amount, { vm.fullName(it) }, onDone = { splitBetween = it; overlay = null }, onDismiss = { overlay = null })
         Overlay.RECEIPT -> ReceiptOverlay(hasReceipt, onDone = { hasReceipt = it; overlay = null }, onDismiss = { overlay = null })
         null -> Unit
     }
 }
+
+/** "You, Maya and Leo" – the wireframe's natural-language list. */
+private fun splitSummary(names: List<String>): String = when (names.size) {
+    0 -> "Nobody selected"
+    1 -> names[0]
+    else -> names.dropLast(1).joinToString() + " and " + names.last()
+}
+
+/** "Alex Morgan (you)" for the current user, the full name for everyone else (15, 16, 18). */
+internal fun AppViewModel.fullName(id: String): String =
+    if (id == ME) "${user(ME).name} (you)" else user(id).name
 
 @SuppressLint("ViewModelConstructorInComposable")
 @Preview
