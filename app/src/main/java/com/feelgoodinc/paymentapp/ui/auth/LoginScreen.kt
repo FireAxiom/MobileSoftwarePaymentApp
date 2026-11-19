@@ -1,0 +1,70 @@
+package com.feelgoodinc.paymentapp.ui.auth
+
+import android.annotation.SuppressLint
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
+import com.feelgoodinc.paymentapp.data.AppViewModel
+import com.feelgoodinc.paymentapp.ui.components.AppScreen
+import com.feelgoodinc.paymentapp.ui.components.AppTextField
+import com.feelgoodinc.paymentapp.ui.components.PrimaryButton
+import com.feelgoodinc.paymentapp.ui.components.offlineState
+
+/** 02 Log in – existing account, authenticated with Firebase Auth. */
+@Composable
+fun LoginScreen(
+    vm: AppViewModel,
+    onBack: () -> Unit,
+    onLoggedIn: () -> Unit,
+    onSwitchToSignUp: () -> Unit,
+) {
+    var email by rememberSaveable { mutableStateOf(vm.currentUser.email) }
+    var password by rememberSaveable { mutableStateOf("") }
+    var error by rememberSaveable { mutableStateOf<String?>(null) }
+
+    AppScreen(
+        title = "Log in",
+        onBack = onBack,
+        offline = vm.offlineState("Offline · Login pending", "Not logged in yet. Will retry when online.", lastSynced = "Not yet"),
+    ) {
+        Text("Welcome back", style = MaterialTheme.typography.headlineSmall)
+        Text("Log in to see your groups and balances.")
+        AppTextField(email, { email = it }, "Email", keyboardType = KeyboardType.Email)
+        AppTextField(password, { password = it }, "Password", keyboardType = KeyboardType.Password, isPassword = true)
+        // 02 · Forgot password: action exists, but there is no destination screen in the model.
+        TextButton(onClick = { error = "Password reset isn't part of this version yet." }) { Text("Forgot password?") }
+        error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+        PrimaryButton("Log in") {
+            if (!vm.isOnline) {
+                error = "You're offline. Try again when you're connected."
+            } else if (!vm.isAuthLoading) {
+                error = null
+                vm.logIn(email, password) { loginError ->
+                    if (loginError == null) onLoggedIn() else error = loginError
+                }
+            }
+        }
+        TextButton(onClick = onSwitchToSignUp, modifier = Modifier.fillMaxWidth()) { Text("New here? Sign up") }
+    }
+}
+
+@SuppressLint("ViewModelConstructorInComposable")
+@Preview
+@Composable
+fun LoginScreenPreview() {
+    LoginScreen(
+        vm = AppViewModel(),
+        onBack = {},
+        onLoggedIn = {},
+        onSwitchToSignUp = {}
+    )
+}

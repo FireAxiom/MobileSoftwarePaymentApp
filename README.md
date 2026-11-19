@@ -120,10 +120,11 @@ app/src/main/java/com/example/myapplication/
 - "Settle balances before deleting account".
 - Remind member bell.
 - Simulated offline mode with a sync notification.
+- Real login auth
 
 **Not yet (on purpose):**
-- Real login and backend.
-- Saving data between app restarts.
+- Backend.
+- Saving data between app restarts. (user data is saved)
 - Real camera and receipt images.
 - Forgot password and Manage invites. These have no screens in the model.
 - Loading and error states for 05 (last row of the wireframes).
