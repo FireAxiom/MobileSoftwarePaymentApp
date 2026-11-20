@@ -55,7 +55,7 @@ fun AppSettingsScreen(
         Text("Version 1.0.0", style = MaterialTheme.typography.bodySmall)
 
         PrimaryButton("Save preferences") {
-            vm.settings = vm.settings.copy(currency = currency, language = language, dateFormat = dateFormat)
+            vm.saveSettings(vm.settings.copy(currency = currency, language = language, dateFormat = dateFormat))
             onBack()
         }
     }
