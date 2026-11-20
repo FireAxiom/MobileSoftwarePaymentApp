@@ -34,6 +34,10 @@ fun LabelValue(label: String, value: String, modifier: Modifier = Modifier) {
         Text(label, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Text(value)
     }
+    HorizontalDivider(
+        thickness = 1.dp,
+        color = Color.LightGray
+    )
 }
 
 /**
