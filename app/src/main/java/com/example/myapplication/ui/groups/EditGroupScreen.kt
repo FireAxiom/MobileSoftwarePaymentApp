@@ -29,7 +29,6 @@ import com.example.myapplication.ui.components.PrimaryButton
 import com.example.myapplication.ui.components.SecondaryButton
 import com.example.myapplication.ui.components.SectionTitle
 import com.example.myapplication.ui.components.offlineState
-import kotlin.math.abs
 
 /**
  * 09 Edit group – name, description, image, members.
@@ -53,7 +52,7 @@ fun EditGroupScreen(
     var confirmDelete by remember { mutableStateOf(false) }
     val iAmAdmin = group.adminId == ME
     val myNet = vm.myNet(groupId)
-    val hasBalance = abs(myNet) >= 0.005
+    val hasBalance = myNet != 0L
 
     AppScreen(
         title = "Edit group",

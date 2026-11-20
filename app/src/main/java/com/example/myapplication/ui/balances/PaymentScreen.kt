@@ -18,8 +18,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.myapplication.data.AppViewModel
-import com.example.myapplication.data.ME
+import com.example.myapplication.data.DebtCalculation
 import com.example.myapplication.data.money
+import com.example.myapplication.data.parseCents
 import com.example.myapplication.data.today
 import com.example.myapplication.ui.components.AppScreen
 import com.example.myapplication.ui.components.AppTextField
@@ -46,10 +47,10 @@ fun PaymentScreen(
         MissingScreen(onCancel)
         return
     }
-    val outstanding = vm.debts(groupId).find { it.fromId == ME && it.toId == toUserId }?.amount ?: 0.0
+    val outstanding = vm.outstanding(groupId, toUserId) // the most you can pay: no overpaying
     var amountText by rememberSaveable { mutableStateOf("") }
-    val amount = if (partial) amountText.replace(',', '.').toDoubleOrNull() ?: 0.0 else outstanding
-    val valid = amount > 0 && amount <= outstanding + 0.001
+    val amount = if (partial) parseCents(amountText) ?: 0L else outstanding
+    val valid = DebtCalculation.isValidPayment(amount, outstanding)
 
     AppScreen(title = if (partial) "Partial payment" else "Full payment", onBack = onCancel) {
         OutlinedCard(Modifier.fillMaxWidth()) {
@@ -66,9 +67,9 @@ fun PaymentScreen(
         if (partial) {
             AppTextField(amountText, { amountText = it }, "Amount to record · USD", keyboardType = KeyboardType.Decimal)
             Text("Enter more than $0.00 and no more than ${money(outstanding)}.", style = MaterialTheme.typography.bodySmall)
-            LabelValue("Remaining after payment", money((outstanding - amount).coerceAtLeast(0.0)))
+            LabelValue("Remaining after payment", money((outstanding - amount).coerceAtLeast(0L)))
         } else {
-            LabelValue("Your remaining balance", money(0.0))
+            LabelValue("Your remaining balance", money(0L))
         }
 
         Text(
@@ -78,7 +79,7 @@ fun PaymentScreen(
         PrimaryButton(
             if (partial) "Record payment — ${money(amount)}" else "Record full payment — ${money(outstanding)}",
             enabled = valid,
-        ) { onRecorded(vm.recordPayment(groupId, toUserId, amount)) }
+        ) { vm.recordPayment(groupId, toUserId, amount)?.let(onRecorded) }
         SecondaryButton("Cancel", onClick = onCancel)
     }
 }

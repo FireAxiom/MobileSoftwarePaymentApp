@@ -18,17 +18,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.myapplication.data.DebtCalculation
 import com.example.myapplication.data.ME
 import com.example.myapplication.data.User
 import com.example.myapplication.data.money
-import com.example.myapplication.data.round2
+import com.example.myapplication.data.parseCents
+import com.example.myapplication.data.perPersonText
+import com.example.myapplication.data.plainAmount
 import com.example.myapplication.ui.components.ClickableRow
 import com.example.myapplication.ui.components.LabelValue
 import com.example.myapplication.ui.components.OverlaySheet
 import com.example.myapplication.ui.components.Placeholder
 import com.example.myapplication.ui.components.PrimaryButton
 import com.example.myapplication.ui.components.SecondaryButton
-import java.util.Locale
 
 private const val BACKSPACE = "⌫"
 private val KEYPAD = listOf(
@@ -47,16 +49,16 @@ private fun pressKey(text: String, key: String): String = when {
         else -> "$text."
     }
     "." in text && text.substringAfter(".").length >= 2 -> text
-    text.length >= 9 -> text
+    "." !in text && text.length >= 7 -> text // max $9,999,999
     text == "0" -> key
     else -> text + key
 }
 
 /** 14 Expense amount overlay – amount display + on-screen keypad, as in the wireframe. */
 @Composable
-fun AmountOverlay(initial: Double, onDone: (Double) -> Unit, onDismiss: () -> Unit) {
-    var text by remember { mutableStateOf(if (initial > 0) "%.2f".format(Locale.US, initial) else "") }
-    val value = text.toDoubleOrNull() ?: 0.0
+fun AmountOverlay(initial: Long, onDone: (Long) -> Unit, onDismiss: () -> Unit) {
+    var text by remember { mutableStateOf(if (initial > 0) plainAmount(initial) else "") }
+    val value = parseCents(text) ?: 0L
 
     OverlaySheet("Enter amount", onDismiss) {
         Text(
@@ -79,7 +81,7 @@ fun AmountOverlay(initial: Double, onDone: (Double) -> Unit, onDismiss: () -> Un
                 }
             }
         }
-        PrimaryButton("Done — use ${money(value)}", enabled = value > 0) { onDone(round2(value)) }
+        PrimaryButton("Done — use ${money(value)}", enabled = value > 0) { onDone(value) }
     }
 }
 
@@ -88,7 +90,7 @@ fun AmountOverlay(initial: Double, onDone: (Double) -> Unit, onDismiss: () -> Un
 fun PayerOverlay(
     members: List<User>,
     selected: String,
-    amount: Double,
+    amount: Long,
     nameOf: (String) -> String,
     onDone: (String) -> Unit,
     onDismiss: () -> Unit,
@@ -115,13 +117,13 @@ fun PayerOverlay(
 fun SplitOverlay(
     members: List<User>,
     selected: List<String>,
-    amount: Double,
+    amount: Long,
     nameOf: (String) -> String,
     onDone: (List<String>) -> Unit,
     onDismiss: () -> Unit,
 ) {
     var chosen by remember { mutableStateOf(selected.toSet()) }
-    val each = if (chosen.isEmpty()) 0.0 else amount / chosen.size
+    val shares = DebtCalculation.split(amount, chosen.toList()) // exact cents, adds up to amount
     fun toggle(id: String) {
         chosen = if (id in chosen) chosen - id else chosen + id
     }
@@ -134,14 +136,14 @@ fun SplitOverlay(
                 Checkbox(checked = user.id in chosen, onCheckedChange = { toggle(user.id) })
                 ClickableRow(
                     title = nameOf(user.id),
-                    trailing = if (user.id in chosen) money(each) else "—",
+                    trailing = shares[user.id]?.let(::money) ?: "—",
                 ) { toggle(user.id) }
             }
             HorizontalDivider()
         }
-        LabelValue("Total allocated", "${money(each * chosen.size)} / ${money(amount)}")
+        LabelValue("Total allocated", "${money(shares.values.sum())} / ${money(amount)}")
         HorizontalDivider()
-        PrimaryButton("Done — ${chosen.size} people, ${money(each)} each", enabled = chosen.isNotEmpty()) {
+        PrimaryButton("Done — ${chosen.size} people, ${perPersonText(amount, chosen.size)}", enabled = chosen.isNotEmpty()) {
             onDone(members.map { it.id }.filter { it in chosen }) // keep member order
         }
     }

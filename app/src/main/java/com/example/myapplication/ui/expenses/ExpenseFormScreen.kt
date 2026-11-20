@@ -6,7 +6,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableDoubleStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -15,6 +15,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.myapplication.data.AppViewModel
 import com.example.myapplication.data.ME
 import com.example.myapplication.data.money
+import com.example.myapplication.data.perPersonText
 import com.example.myapplication.ui.components.AppScreen
 import com.example.myapplication.ui.components.AppTextField
 import com.example.myapplication.ui.components.ClickableRow
@@ -49,7 +50,7 @@ fun ExpenseFormScreen(
     val members = vm.membersOf(group)
 
     var description by rememberSaveable { mutableStateOf(existing?.description ?: "") }
-    var amount by rememberSaveable { mutableDoubleStateOf(existing?.amount ?: 0.0) }
+    var amount by rememberSaveable { mutableLongStateOf(existing?.amount ?: 0L) }
     var paidBy by rememberSaveable { mutableStateOf(existing?.paidById ?: ME) }
     var splitBetween by remember { mutableStateOf(existing?.splitBetween ?: group.memberIds) }
     var note by rememberSaveable { mutableStateOf(existing?.note ?: "") }
@@ -82,7 +83,7 @@ fun ExpenseFormScreen(
         ClickableRow(
             title = "Split equally · ${splitBetween.size} people",
             subtitle = splitSummary(splitBetween.map { vm.firstName(it) }) +
-                if (splitBetween.isNotEmpty()) " · ${money(amount / splitBetween.size)} each" else "",
+                if (splitBetween.isNotEmpty()) " · ${perPersonText(amount, splitBetween.size)}" else "",
             trailing = "Change ›",
         ) { overlay = Overlay.SPLIT }
         HorizontalDivider()

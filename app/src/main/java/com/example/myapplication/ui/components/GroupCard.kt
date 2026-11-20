@@ -11,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 /** One group in the Groups list (05). */
@@ -20,6 +21,7 @@ fun GroupCard(
     details: String,
     balance: String,
     balanceDetail: String? = null,
+    balanceColor: Color = Color.Unspecified,
     onClick: () -> Unit,
 ) {
     OutlinedCard(onClick = onClick, modifier = Modifier.fillMaxWidth()) {
@@ -34,7 +36,7 @@ fun GroupCard(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Column(Modifier.weight(1f)) {
-                    Text(balance, style = MaterialTheme.typography.titleSmall)
+                    Text(balance, style = MaterialTheme.typography.titleSmall, color = balanceColor)
                     if (balanceDetail != null) {
                         Text(balanceDetail, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }

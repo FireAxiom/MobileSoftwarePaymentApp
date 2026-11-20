@@ -12,13 +12,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.myapplication.data.AppViewModel
-import com.example.myapplication.data.ME
 import com.example.myapplication.data.money
 import com.example.myapplication.ui.components.AppScreen
 import com.example.myapplication.ui.components.LabelValue
 import com.example.myapplication.ui.components.MissingScreen
 import com.example.myapplication.ui.components.PrimaryButton
 import com.example.myapplication.ui.components.SectionTitle
+import com.example.myapplication.ui.theme.balanceColor
 
 /** 23 Payment recorded (after a partial payment). Done → 07 Individual group. */
 @Composable
@@ -28,7 +28,7 @@ fun PaymentRecordedScreen(vm: AppViewModel, paymentId: String, onDone: () -> Uni
         MissingScreen(onDone)
         return
     }
-    val stillToPay = vm.debts(payment.groupId).find { it.fromId == ME && it.toId == payment.toId }?.amount ?: 0.0
+    val stillToPay = vm.outstanding(payment.groupId, payment.toId)
 
     AppScreen(title = "Payment recorded", onBack = onDone) {
         Icon(Icons.Default.CheckCircle, contentDescription = null, Modifier.size(56.dp), tint = MaterialTheme.colorScheme.primary)
@@ -38,7 +38,7 @@ fun PaymentRecordedScreen(vm: AppViewModel, paymentId: String, onDone: () -> Uni
         SectionTitle("Your balance is updated")
         LabelValue("Previously owed", money(stillToPay + payment.amount))
         LabelValue("Payment recorded", "−${money(payment.amount)}")
-        LabelValue("Still to pay", money(stillToPay))
+        LabelValue("Still to pay", money(stillToPay), valueColor = balanceColor(-stillToPay))
         PrimaryButton("Done — back to group", onClick = onDone)
     }
 }

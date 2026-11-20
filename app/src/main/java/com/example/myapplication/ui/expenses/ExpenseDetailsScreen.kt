@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.myapplication.data.AppViewModel
+import com.example.myapplication.data.DebtCalculation
 import com.example.myapplication.data.money
 import com.example.myapplication.ui.components.AppScreen
 import com.example.myapplication.ui.components.ClickableRow
@@ -43,7 +44,7 @@ fun ExpenseDetailsScreen(
         return
     }
     var showReceipt by remember { mutableStateOf(false) }
-    val share = expense.amount / expense.splitBetween.size
+    val shares = DebtCalculation.split(expense.amount, expense.splitBetween)
 
     AppScreen(
         title = expense.description,
@@ -62,7 +63,7 @@ fun ExpenseDetailsScreen(
 
         SectionTitle("Split equally")
         expense.splitBetween.forEach {
-            ClickableRow(vm.fullName(it), trailing = money(share))
+            ClickableRow(vm.fullName(it), trailing = money(shares[it] ?: 0L))
             HorizontalDivider()
         }
 
