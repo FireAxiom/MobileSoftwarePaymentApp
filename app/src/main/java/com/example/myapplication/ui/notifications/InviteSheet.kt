@@ -27,7 +27,7 @@ fun InviteSheet(vm: AppViewModel, invite: Invite, onClose: () -> Unit) {
         Text(invite.groupName, style = MaterialTheme.typography.titleLarge)
         Text("${vm.user(invite.fromUserId).name} invited you to join.")
         LabelValue("Members", invite.memberIds.joinToString { vm.firstName(it) })
-        LabelValue("Your starting balance", money(0.0))
+        LabelValue("Your starting balance", money(0L))
         Text(invite.description, style = MaterialTheme.typography.bodySmall)
         PrimaryButton("Accept invitation") {
             vm.acceptInvite(invite.id) // the group now appears in 05 Groups

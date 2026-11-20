@@ -17,6 +17,7 @@ import com.example.myapplication.ui.components.AppTextField
 import com.example.myapplication.ui.components.GroupCard
 import com.example.myapplication.ui.components.PrimaryButton
 import com.example.myapplication.ui.components.offlineState
+import com.example.myapplication.ui.theme.balanceColor
 
 /** 05 Groups tab – search, select, create. */
 @Composable
@@ -45,6 +46,7 @@ fun GroupsScreen(
                 details = "$members member${if (members == 1) "" else "s"} · " +
                         "$count expense${if (count == 1) "" else "s"} · Total ${money(vm.groupTotal(group.id))}",
                 balance = balanceText(vm.myNet(group.id)),
+                balanceColor = balanceColor(vm.myNet(group.id)),
                 balanceDetail = balanceDetail(vm, group.id),
             ) { onOpenGroup(group.id) }
         }

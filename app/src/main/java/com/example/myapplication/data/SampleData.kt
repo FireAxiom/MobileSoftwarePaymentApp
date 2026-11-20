@@ -22,10 +22,10 @@ object SampleData {
     private val everyone = listOf(ME, "maya", "leo")
 
     val expenses = listOf(
-        Expense("e1", "g1", "Groceries", 90.0, "maya", everyone, note = "Food for the weekend", hasReceipt = true, date = "Oct 16, 2026"),
-        Expense("e2", "g1", "Cabin booking", 180.0, "maya", everyone, date = "Oct 15, 2026"),
-        Expense("e3", "g1", "Fuel", 90.0, "leo", everyone, date = "Oct 17, 2026"),
-        Expense("e4", "g2", "Dinner", 96.0, ME, everyone, date = "Oct 18, 2026"),
+        Expense("e1", "g1", "Groceries", 9000, "maya", everyone, note = "Food for the weekend", hasReceipt = true, date = "Oct 16, 2026"),
+        Expense("e2", "g1", "Cabin booking", 18000, "maya", everyone, date = "Oct 15, 2026"),
+        Expense("e3", "g1", "Fuel", 9000, "leo", everyone, date = "Oct 17, 2026"),
+        Expense("e4", "g2", "Dinner", 9600, ME, everyone, date = "Oct 18, 2026"),
     )
 
     val invites = listOf(
@@ -42,6 +42,6 @@ object SampleData {
     )
 
     val payments = listOf(
-        Payment("p1", groupId = "g1", fromId = "maya", toId = "leo", amount = 100.00, date = "Oct 30, 2026")
+        Payment("p1", groupId = "g1", fromId = "maya", toId = "leo", amount = 10000, date = "Oct 30, 2026")
     )
 }

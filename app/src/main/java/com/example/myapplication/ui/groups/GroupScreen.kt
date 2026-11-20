@@ -16,6 +16,7 @@ import com.example.myapplication.data.AppViewModel
 import com.example.myapplication.data.ME
 import com.example.myapplication.data.balanceText
 import com.example.myapplication.data.money
+import com.example.myapplication.data.perPersonText
 import com.example.myapplication.ui.components.AppScreen
 import com.example.myapplication.ui.components.ClickableRow
 import com.example.myapplication.ui.components.MissingScreen
@@ -24,6 +25,7 @@ import com.example.myapplication.ui.components.PrimaryButton
 import com.example.myapplication.ui.components.SecondaryButton
 import com.example.myapplication.ui.components.SectionTitle
 import com.example.myapplication.ui.components.offlineState
+import com.example.myapplication.ui.theme.balanceColor
 
 /** 07 Individual group – the shared group destination. */
 @Composable
@@ -57,9 +59,14 @@ fun GroupScreen(
 
         OutlinedCard(Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text(balanceText(vm.myNet(groupId)), style = MaterialTheme.typography.titleMedium)
-                debts.filter { it.fromId == ME }.forEach { Text("You owe ${money(it.amount)} to ${vm.user(it.toId).name}") }
-                debts.filter { it.toId == ME }.forEach { Text("${vm.user(it.fromId).name} owes you ${money(it.amount)}") }
+                val myNet = vm.myNet(groupId)
+                Text(balanceText(myNet), style = MaterialTheme.typography.titleMedium, color = balanceColor(myNet))
+                debts.filter { it.fromId == ME }.forEach {
+                    Text("You owe ${money(it.amount)} to ${vm.user(it.toId).name}", color = balanceColor(-it.amount))
+                }
+                debts.filter { it.toId == ME }.forEach {
+                    Text("${vm.user(it.fromId).name} owes you ${money(it.amount)}", color = balanceColor(it.amount))
+                }
                 SecondaryButton("View balances / settle up", onClick = onOpenBalances)
             }
         }
@@ -71,7 +78,7 @@ fun GroupScreen(
             ClickableRow(
                 title = e.description,
                 subtitle = "${vm.firstName(e.paidById)} paid ${money(e.amount)} · ${e.date}",
-                trailing = "${money(e.amount / e.splitBetween.size)} each",
+                trailing = perPersonText(e.amount, e.splitBetween.size),
             ) { onOpenExpense(e.id) }
         }
         vm.paymentsIn(groupId).forEach { p ->

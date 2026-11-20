@@ -17,7 +17,7 @@ data class Expense(
     val id: String,
     val groupId: String,
     val description: String,
-    val amount: Double,
+    val amount: Long, // cents: $90.00 = 9000
     val paidById: String,
     val splitBetween: List<String>, // split equally between these people
     val note: String = "",
@@ -31,12 +31,12 @@ data class Payment(
     val groupId: String,
     val fromId: String,
     val toId: String,
-    val amount: Double,
+    val amount: Long, // cents
     val date: String,
 )
 
-/** "fromId owes toId this amount" – calculated, never stored. */
-data class Debt(val fromId: String, val toId: String, val amount: Double)
+/** "fromId owes toId this amount" (cents) – calculated by DebtCalculation, never stored. */
+data class Debt(val fromId: String, val toId: String, val amount: Long)
 
 /** An invitation someone sent to me (shown in Notifications, screen 10). */
 data class Invite(

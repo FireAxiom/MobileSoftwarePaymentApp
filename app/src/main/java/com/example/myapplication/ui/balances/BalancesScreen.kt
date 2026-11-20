@@ -34,6 +34,7 @@ import com.example.myapplication.ui.components.PrimaryButton
 import com.example.myapplication.ui.components.SecondaryButton
 import com.example.myapplication.ui.components.SectionTitle
 import com.example.myapplication.ui.components.offlineState
+import com.example.myapplication.ui.theme.balanceColor
 
 /** 20 Owing and owed – member balances, Pay full (21) / partial (22), remind member (bell). */
 @Composable
@@ -66,7 +67,11 @@ fun BalancesScreen(
         myDebts.forEach { debt ->
             OutlinedCard(Modifier.fillMaxWidth()) {
                 Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("You owe ${vm.user(debt.toId).name} ${money(debt.amount)}", style = MaterialTheme.typography.titleMedium)
+                    Text(
+                        "You owe ${vm.user(debt.toId).name} ${money(debt.amount)}",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = balanceColor(-debt.amount),
+                    )
                     Text(
                         "Your share ${money(vm.shareOf(groupId, ME))} · You paid ${money(vm.paidBy(groupId, ME))}",
                         style = MaterialTheme.typography.bodySmall,
@@ -98,7 +103,8 @@ fun BalancesScreen(
                                 )
                             }
                         }
-                        Text(netText(vm.netBalance(groupId, id)))
+                        val net = vm.netBalance(groupId, id)
+                        Text(netText(net), color = balanceColor(net))
                     }
                 },
             )

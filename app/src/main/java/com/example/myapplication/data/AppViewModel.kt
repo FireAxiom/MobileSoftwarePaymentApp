@@ -6,7 +6,6 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import kotlin.math.abs
 
 /**
  * The app's single source of data. For now it is a FAKE backend: everything lives in memory
@@ -51,7 +50,7 @@ class AppViewModel : ViewModel() {
     fun paymentsIn(groupId: String): List<Payment> = payments.filter { it.groupId == groupId }
     fun invite(id: String): Invite? = invites.find { it.id == id }
     fun sentInvitesFor(groupId: String): List<SentInvite> = sentInvites.filter { it.groupId == groupId }
-    fun groupTotal(groupId: String): Double = expensesIn(groupId).sumOf { it.amount }
+    fun groupTotal(groupId: String): Long = expensesIn(groupId).sumOf { it.amount }
 
     // ---------- Access (01–03, 25, 28) ----------
     fun logIn(email: String, password: String): Boolean = email.isNotBlank() && password.isNotBlank()
@@ -122,14 +121,14 @@ class AppViewModel : ViewModel() {
     fun addExpense(
         groupId: String,
         description: String,
-        amount: Double,
+        amount: Long,
         paidById: String,
         splitBetween: List<String>,
         note: String,
         hasReceipt: Boolean,
     ): String {
         val id = newId("e")
-        expenses.add(Expense(id, groupId, description, round2(amount), paidById, splitBetween, note, hasReceipt, today()))
+        expenses.add(Expense(id, groupId, description, amount, paidById, splitBetween, note, hasReceipt, today()))
         return id
     }
 
@@ -138,47 +137,35 @@ class AppViewModel : ViewModel() {
         if (index >= 0) expenses[index] = expense
     }
 
-    // ---------- Balances (07, 20–23) ----------
-    fun paidBy(groupId: String, userId: String): Double =
-        expensesIn(groupId).filter { it.paidById == userId }.sumOf { it.amount }
+    // ---------- Balances (07, 20–23) – the maths lives in DebtCalculation ----------
+    fun paidBy(groupId: String, userId: String): Long = DebtCalculation.paidBy(userId, expensesIn(groupId))
 
-    fun shareOf(groupId: String, userId: String): Double =
-        expensesIn(groupId).filter { userId in it.splitBetween }.sumOf { it.amount / it.splitBetween.size }
+    fun shareOf(groupId: String, userId: String): Long = DebtCalculation.shareOf(userId, expensesIn(groupId))
 
     /** Positive = others owe this person. Negative = this person owes others. */
-    fun netBalance(groupId: String, userId: String): Double {
-        val sent = paymentsIn(groupId).filter { it.fromId == userId }.sumOf { it.amount }
-        val received = paymentsIn(groupId).filter { it.toId == userId }.sumOf { it.amount }
-        return round2(paidBy(groupId, userId) - shareOf(groupId, userId) + sent - received)
-    }
+    fun netBalance(groupId: String, userId: String): Long =
+        DebtCalculation.netBalance(userId, expensesIn(groupId), paymentsIn(groupId))
 
-    fun myNet(groupId: String): Double = netBalance(groupId, ME)
+    fun myNet(groupId: String): Long = netBalance(groupId, ME)
 
-    /** Who should pay whom: biggest debtor pays biggest creditor, repeat. */
+    /** Who should pay whom in this group – the transaction list. */
     fun debts(groupId: String): List<Debt> {
         val group = group(groupId) ?: return emptyList()
-        val people = (group.memberIds + expensesIn(groupId).flatMap { it.splitBetween + it.paidById }).distinct()
-        val balance = people.associateWith { netBalance(groupId, it) }.toMutableMap()
-        val result = mutableListOf<Debt>()
-        while (true) {
-            val (debtor, owes) = balance.minByOrNull { it.value }?.toPair() ?: break
-            val (creditor, owed) = balance.maxByOrNull { it.value }?.toPair() ?: break
-            if (owes > -0.005 || owed < 0.005) break
-            val amount = round2(minOf(-owes, owed))
-            result += Debt(debtor, creditor, amount)
-            balance[debtor] = round2(owes + amount)
-            balance[creditor] = round2(owed - amount)
-        }
-        return result
+        return DebtCalculation.settleUp(DebtCalculation.netBalances(group.memberIds, expensesIn(groupId), paymentsIn(groupId)))
     }
 
-    fun recordPayment(groupId: String, toId: String, amount: Double): String {
+    /** The most I can pay [toId] in this group: paying more than this is not allowed. */
+    fun outstanding(groupId: String, toId: String): Long = DebtCalculation.outstanding(debts(groupId), ME, toId)
+
+    /** Records my payment to [toId]. Returns null (and records nothing) if it is zero or more than I owe. */
+    fun recordPayment(groupId: String, toId: String, amount: Long): String? {
+        if (!DebtCalculation.isValidPayment(amount, outstanding(groupId, toId))) return null
         val id = newId("p")
-        payments.add(Payment(id, groupId, ME, toId, round2(amount), today()))
+        payments.add(Payment(id, groupId, ME, toId, amount, today()))
         return id
     }
 
-    fun allSettled(): Boolean = groups.all { abs(myNet(it.id)) < 0.005 }
+    fun allSettled(): Boolean = groups.all { myNet(it.id) == 0L }
 
     // ---------- Offline (shared behavior) ----------
     fun setConnection(online: Boolean) {

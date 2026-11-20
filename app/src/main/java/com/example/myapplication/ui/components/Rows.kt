@@ -29,10 +29,10 @@ fun SectionTitle(text: String) {
 
 /** "Label ........ Value" on one line. */
 @Composable
-fun LabelValue(label: String, value: String, modifier: Modifier = Modifier) {
+fun LabelValue(label: String, value: String, modifier: Modifier = Modifier, valueColor: Color = Color.Unspecified) {
     Row(modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
         Text(label, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        Text(value)
+        Text(value, color = valueColor)
     }
 }
 
