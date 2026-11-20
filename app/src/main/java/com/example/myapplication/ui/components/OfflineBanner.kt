@@ -14,7 +14,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.myapplication.data.AppViewModel
 
-data class OfflineState(val title: String, val message: String, val lastSynced: String)
+data class OfflineState(val title: String, val message: String, val lastSynced: String, val pendingCount: Int = 0)
 
 /**
  * Returns the banner content when offline, or null when online.
@@ -24,7 +24,8 @@ fun AppViewModel.offlineState(
     title: String = "Offline",
     message: String,
     lastSynced: String? = null,
-): OfflineState? = if (isOnline) null else OfflineState(title, message, lastSynced ?: this.lastSynced)
+): OfflineState? =
+    if (isOnline) null else OfflineState(title, message, lastSynced ?: this.lastSynced, pendingRequests.size)
 
 /** Amber banner shown first in the content, directly below the header (see navigation model). */
 @Composable
@@ -39,6 +40,10 @@ fun OfflineBanner(state: OfflineState, modifier: Modifier = Modifier) {
             Text(state.title, style = MaterialTheme.typography.titleSmall)
             Text("Last synced: ${state.lastSynced}", style = MaterialTheme.typography.bodySmall)
             Text(state.message, style = MaterialTheme.typography.bodySmall)
+            if (state.pendingCount > 0) { // NFR-04: requests still waiting to be sent
+                val changes = if (state.pendingCount == 1) "1 change" else "${state.pendingCount} changes"
+                Text("$changes waiting to sync", style = MaterialTheme.typography.labelLarge)
+            }
         }
     }
 }
