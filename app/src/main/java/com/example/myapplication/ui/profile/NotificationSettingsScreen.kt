@@ -35,13 +35,13 @@ fun NotificationSettingsScreen(vm: AppViewModel, onBack: () -> Unit) {
         CheckboxRow("Payments recorded", draft.notifyPayments) { draft = draft.copy(notifyPayments = it) }
 
         PrimaryButton("Save notification settings") {
-            vm.settings = vm.settings.copy(
+            vm.saveSettings(vm.settings.copy(
                 pushNotifications = draft.pushNotifications,
                 emailNotifications = draft.emailNotifications,
                 notifyInvites = draft.notifyInvites,
                 notifyExpenses = draft.notifyExpenses,
                 notifyPayments = draft.notifyPayments,
-            )
+            ))
             onBack()
         }
     }

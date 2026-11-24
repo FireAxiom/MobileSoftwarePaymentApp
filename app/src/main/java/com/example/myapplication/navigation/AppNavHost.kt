@@ -3,10 +3,13 @@ package com.example.myapplication.navigation
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -38,7 +41,16 @@ fun AppNavHost(vm: AppViewModel = viewModel()) {
     }
     val showBottomBar = route != null && route !in Routes.screensWithoutTabs
 
+    // Request feedback from AppViewModel: saved / failed, will retry / synced (NFR-05–07).
+    val snackbarHostState = remember { SnackbarHostState() }
+    LaunchedEffect(vm.feedback) {
+        val message = vm.feedback ?: return@LaunchedEffect
+        vm.feedbackShown()
+        snackbarHostState.showSnackbar(message)
+    }
+
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = {
             if (showBottomBar) {
                 BottomBar(selectedTab) { tab -> navController.switchTab(tab.route) }

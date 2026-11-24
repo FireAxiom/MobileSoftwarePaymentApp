@@ -28,11 +28,20 @@ class AppViewModel : ViewModel() {
     val sentInvites = mutableStateListOf<SentInvite>().apply { addAll(SampleData.sentInvites) }
     val notifications = mutableStateListOf<AppNotification>().apply { addAll(SampleData.notifications) }
     var settings by mutableStateOf(Settings())
+        private set
 
     /** Fake connection status. Toggle it in App settings to see the offline banners. */
     var isOnline by mutableStateOf(true)
         private set
     var lastSynced by mutableStateOf("9:38 AM")
+        private set
+
+    /** Changes saved on this device that still have to reach the server (NFR-01, 04). */
+    val pendingRequests = mutableStateListOf<PendingRequest>()
+    private val requestQueue = RequestQueue(pendingRequests)
+
+    /** One-off feedback message shown as a snackbar (NFR-05, 06). Cleared once shown. */
+    var feedback by mutableStateOf<String?>(null)
         private set
 
     private var nextId = 100
@@ -57,30 +66,46 @@ class AppViewModel : ViewModel() {
 
     fun signUp(name: String, email: String, password: String): Boolean {
         if (name.isBlank() || email.isBlank() || password.isBlank()) return false
-        updateAccount(name.trim(), email.trim())
+        setAccount(name.trim(), email.trim())
         return true
     }
 
     fun updateAccount(name: String, email: String) {
+        setAccount(name, email)
+        sync("Account changes")
+    }
+
+    private fun setAccount(name: String, email: String) {
         currentUser = currentUser.copy(name = name, email = email)
         users[ME] = currentUser
+    }
+
+    fun saveSettings(newSettings: Settings) {
+        settings = newSettings
+        sync("Settings")
     }
 
     // ---------- Groups (05, 08, 09, 12) ----------
     fun createGroup(name: String, description: String): String {
         val id = newId("g")
         groups.add(Group(id, name.trim(), description.trim(), listOf(ME), adminId = ME))
+        sync("New group")
         return id
     }
 
-    fun updateGroup(id: String, name: String, description: String) =
+    fun updateGroup(id: String, name: String, description: String) {
         changeGroup(id) { it.copy(name = name.trim(), description = description.trim()) }
+        sync("Group changes")
+    }
 
-    fun removeMember(groupId: String, userId: String) =
+    fun removeMember(groupId: String, userId: String) {
         changeGroup(groupId) { it.copy(memberIds = it.memberIds - userId) }
+        sync("Member removal")
+    }
 
     fun leaveGroup(groupId: String) {
         groups.removeAll { it.id == groupId }
+        sync("Leaving group")
     }
 
     fun deleteGroup(groupId: String) {
@@ -88,6 +113,7 @@ class AppViewModel : ViewModel() {
         expenses.removeAll { it.groupId == groupId }
         payments.removeAll { it.groupId == groupId }
         sentInvites.removeAll { it.groupId == groupId }
+        sync("Group deletion")
     }
 
     private fun changeGroup(id: String, change: (Group) -> Group) {
@@ -97,6 +123,7 @@ class AppViewModel : ViewModel() {
 
     fun sendInvite(groupId: String, email: String) {
         sentInvites.add(SentInvite(newId("si"), groupId, email.trim()))
+        sync("Invite")
     }
 
     // ---------- Invitations I received (04, 10) ----------
@@ -110,11 +137,13 @@ class AppViewModel : ViewModel() {
             0,
             AppNotification(newId("n"), NotificationType.ACTIVITY, "You joined ${invite.groupName}", "Find it in Groups", "Just now", groupId = groupId),
         )
+        sync("Invite response")
     }
 
     fun declineInvite(inviteId: String) {
         invites.removeAll { it.id == inviteId }
         notifications.removeAll { it.inviteId == inviteId }
+        sync("Invite response")
     }
 
     // ---------- Expenses (13, 18, 19) ----------
@@ -129,12 +158,14 @@ class AppViewModel : ViewModel() {
     ): String {
         val id = newId("e")
         expenses.add(Expense(id, groupId, description, amount, paidById, splitBetween, note, hasReceipt, today()))
+        sync("Expense")
         return id
     }
 
     fun updateExpense(expense: Expense) {
         val index = expenses.indexOfFirst { it.id == expense.id }
         if (index >= 0) expenses[index] = expense
+        sync("Expense changes")
     }
 
     // ---------- Balances (07, 20–23) – the maths lives in DebtCalculation ----------
@@ -162,20 +193,52 @@ class AppViewModel : ViewModel() {
         if (!DebtCalculation.isValidPayment(amount, outstanding(groupId, toId))) return null
         val id = newId("p")
         payments.add(Payment(id, groupId, ME, toId, amount, today()))
+        sync("Payment")
         return id
     }
 
     fun allSettled(): Boolean = groups.all { myNet(it.id) == 0L }
 
-    // ---------- Offline (shared behavior) ----------
+    // ---------- Offline + retry (shared behavior, NFR-01–07) ----------
+
+    /**
+     * Fake server call. A real backend would make a network request here; for now a request
+     * succeeds exactly when the (simulated) connection is up.
+     */
+    private fun sendToServer(@Suppress("UNUSED_PARAMETER") request: PendingRequest): Boolean = isOnline
+
+    /** Sends a change that was already applied locally; if it fails it is queued for automatic retry. */
+    private fun sync(description: String) {
+        feedback = if (requestQueue.submit(description, ::sendToServer)) {
+            "$description saved" // NFR-05
+        } else {
+            "$description couldn't be sent – saved on this device, will retry automatically" // NFR-06
+        }
+    }
+
+    fun feedbackShown() {
+        feedback = null
+    }
+
+    /** App settings → Simulate offline mode. Coming back online retries everything queued (NFR-01). */
     fun setConnection(online: Boolean) {
-        if (online && !isOnline) {
-            lastSynced = timeNow()
+        isOnline = online
+        if (!online) return
+        lastSynced = timeNow()
+        val synced = requestQueue.retryAll(::sendToServer)
+        if (synced.isNotEmpty()) { // NFR-07: only when a failed request has now succeeded
+            val count = if (synced.size == 1) "1 change" else "${synced.size} changes"
             notifications.add(
                 0,
-                AppNotification(newId("n"), NotificationType.SYNC, "Sync succeeded", "Changes made while offline were synced in the background.", "Just now"),
+                AppNotification(
+                    newId("n"),
+                    NotificationType.SYNC,
+                    "Sync succeeded",
+                    "$count made while offline synced in the background: " + synced.joinToString { it.description } + ".",
+                    "Just now",
+                ),
             )
+            feedback = "Back online – $count synced"
         }
-        isOnline = online
     }
 }
