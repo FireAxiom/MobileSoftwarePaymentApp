@@ -41,7 +41,7 @@ fun AccountSettingsScreen(
         AppTextField(name, { name = it }, "Full name")
         AppTextField(email, { email = it }, "Email address", keyboardType = KeyboardType.Email)
         ClickableRow("Change password", "Last updated Oct 1, 2026", "›")
-        ClickableRow("Payment method", "•••• 7344", "Change")
+        ClickableRow("Payment method", "•••• 7344", "›")
         ClickableRow("Profile photo", trailing = "Change")
         PrimaryButton("Save account changes", enabled = name.isNotBlank() && email.isNotBlank()) {
             vm.updateAccount(name.trim(), email.trim())

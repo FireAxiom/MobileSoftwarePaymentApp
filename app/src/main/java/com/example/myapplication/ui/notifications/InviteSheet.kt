@@ -41,18 +41,20 @@ fun InviteSheet(vm: AppViewModel, invite: Invite, onClose: () -> Unit) {
 }
 
 @SuppressLint("ViewModelConstructorInComposable")
-@Preview
+@Preview(showBackground = true)
 @Composable
 fun InviteSheetPreview() {
-    InviteSheet(
-        vm = AppViewModel(),
-        invite = Invite(
-            id = "",
-            groupName = "",
-            description = "",
-            fromUserId = "",
-            memberIds = listOf(),
-        ),
-        onClose = {},
-    )
+    MaterialTheme {
+        InviteSheet(
+            vm = AppViewModel(),
+            invite = Invite(
+                id = "i1",
+                groupName = "Sunday hike",
+                description = "Join Maya and Sam to split the day's expenses.",
+                fromUserId = "maya",
+                memberIds = listOf("maya", "sam"),
+            ),
+            onClose = {},
+        )
+    }
 }
